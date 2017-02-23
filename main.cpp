@@ -19,43 +19,47 @@ bool operator==(const coord& lhs, const coord& rhs)
 class graph{
 private:
     int **map;
+    int **distances;
+    coord **source;
     coord dim;
 public:
     graph(const int maxYpassed,const int maxXpassed, const unsigned char* pMap){
         dim.x = maxXpassed;
         dim.y = maxYpassed;
         map = new int*[dim.y];
+        distances = new int*[dim.y];
+        source = new coord*[dim.y];
         int index = 0;
         for(int y = 0; y < dim.y; y++) {
             map[y] = new int[dim.x];
+            distances[y] = new int[dim.x];
+            source[y] = new coord[dim.x];
             for (int x = 0; x < dim.x; x++) {
                 map[y][x] = static_cast<int>(pMap[index]);
+                distances[y][x] = -1;
+                source[y][x] = coord{-1,-1};
                 index++;
             }
         }
     }
 
-    graph(coord c, const unsigned char* pMap){
-        dim = c;
-        map = new int*[dim.y];
-        int index = 0;
-        for(int y = 0; y < dim.y; y++) {
-            map[y] = new int[dim.x];
-            for (int x = 0; x < dim.x; x++) {
-                map[y][x] = pMap[index];
-                index++;
-            }
-        }
-    }
+//    graph(coord c, const unsigned char* pMap){
+//        dim = c;
+//        map = new int*[dim.y];
+//        int index = 0;
+//        for(int y = 0; y < dim.y; y++) {
+//            map[y] = new int[dim.x];
+//            for (int x = 0; x < dim.x; x++) {
+//                map[y][x] = pMap[index];
+//                index++;
+//            }
+//        }
+//    }
 
     ~graph(){
         for(int i =0 ; i < dim.y; i++)
             delete[](map[i]);
         delete[](map);
-    }
-
-    int getElem(coord c) const {
-        return map[c.y][c.x];
     }
 
     void findAdj(coord c, std::list<coord>* ret){
@@ -86,8 +90,9 @@ int FindPath(const int nStartX, const int nStartY,
     coord start = coord{nStartX, nStartY};
     coord target = coord{nTargetX, nTargetY};
     graph* fico = new graph(nMapHeight, nMapWidth, pMap);
-    std::list<coord> coda;
+    std::list<coord> coda;                  //TODO: let coda be a set (no duplicates)
     coda.push_back(start);
+
     while(!coda.empty()){
         coord vertex = coda.front();
         coda.pop_front();
@@ -95,12 +100,12 @@ int FindPath(const int nStartX, const int nStartY,
         if(vertex == target){
             break;
         } else{
-            std::list<coord> reso;
-            fico->findAdj(vertex, OUT &reso);
+            std::list<coord> adj;
+            fico->findAdj(vertex, OUT &adj);
             std::cout<<"i miei vicini sono ";
-            std::for_each(reso.begin(), reso.end(),printCoord);
+            std::for_each(adj.begin(), adj.end(), printCoord);
             std::cout<<std::endl;
-            coda.splice(coda.end(), reso);
+            coda.splice(coda.end(), adj);
         }
     }
 
