@@ -1,8 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/reso.dir/main.cpp.o"
   "reso.pdb"
-  "reso.exe"
-  "libreso.dll.a"
+  "reso"
 )
 
 # Per-language clean rules from dependency scanning.

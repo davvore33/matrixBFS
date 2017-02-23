@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/cygdrive/c/Users/matteo/Documents/matrixBFS/main.cpp" "/cygdrive/c/Users/matteo/Documents/matrixBFS/cmake-build-debug/CMakeFiles/reso.dir/main.cpp.o"
+  "/run/media/matteo/321AB9C01AB98201/Users/matteo/Documents/matrixBFS/main.cpp" "/run/media/matteo/321AB9C01AB98201/Users/matteo/Documents/matrixBFS/cmake-build-debug/CMakeFiles/reso.dir/main.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

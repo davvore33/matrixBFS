@@ -17,9 +17,19 @@ bool operator==(const coord& lhs, const coord& rhs)
         return false;
 }
 
-void printCoord(coord lhs){
-    std::cout<<"x "<<lhs.x<<" ";
-    std::cout<<"y "<<lhs.y<<" "<<std::endl;
+std::ostream& operator << (std::ostream& stream, coord &p)
+{
+    stream << p.x<<"/"<<p.y;
+    return stream;
+}
+
+std::ostream& operator << (std::ostream& stream, std::list<int> &p)
+{
+    for (int i = 0; i < p.size(); ++i) {
+        stream << p.front();
+        p.pop_front();
+    }
+    return stream;
 }
 
 class graph{
@@ -77,7 +87,7 @@ public:
     }
 
     int indexTransform(coord c){
-        return c.x+c.y*dim.y;
+        return c.x+c.y*dim.x;
     }
 
     void findAdj(coord c, std::list<coord>* ret){
@@ -112,7 +122,6 @@ int FindPath(const int nStartX, const int nStartY,
     while(!coda.empty()){
         coord vertex = coda.front();
         coda.pop_front();
-        std::cout<<"sono al "<<vertex.x<<" "<<vertex.y<<std::endl;
         if(vertex == target){
             break;
         } else{
@@ -131,36 +140,41 @@ int FindPath(const int nStartX, const int nStartY,
                     adj.push_back(nextVertex);
                 }
             }
-            std::cout<<"i miei vicini sono ";
-            std::for_each(adj.begin(), adj.end(), printCoord);
-            std::cout<<std::endl;
             coda.splice(coda.end(), adj);
         }
     }
+//    KNOW WHAT I HAVE
+//    for (int i = 0; i < nMapHeight; ++i) {
+//        for (int j = 0; j < nMapWidth; ++j) {
+//            coord ori = coord{j,i};
+//            coord source = fico->getSource(ori);
+//            std::cerr<<ori<<"{"<<source<<"}"<<fico->indexTransform(ori)<<"\t";
+//        }
+//        std::cerr<<std::endl;
+//    }
     coord support = target;
     std::list<int> street;
     while(true){
-        if(support == start) break;
         street.push_back(fico->indexTransform(support));
-        support = fico->getSource(target);
+        if(support == start) break;
+        support = fico->getSource(support);
     }
     if(street.size() > nOutBufferSize)
         return -1;
+    else {
+        long size = street.size();
+        for (int k = 0; k < (nOutBufferSize - size); ++k) {
+            street.push_front(0);
+        }
+    }
     int index = 0;
-    for (int j = street.size(); j > 0; j--) {
+    for (long j = street.size(); j > 0; j--) {
         pOutBuffer[index] = street.back();
         street.pop_back();
         index++;
     }
+    return 0;
 
-//    KNOW WHAT I HAVE
-//    for (int i = 0; i < nMapHeight; ++i) {
-//        for (int j = 0; j < nMapWidth; ++j) {
-//            coord dim = coord{j,i};
-//            std::cout<< fico->getElem(dim);
-//        }
-//        std::cout<<std::endl;
-//    }
 
 }
 
@@ -169,6 +183,9 @@ int main(){
     int pOutBuffer[12];
     FindPath(0, 0, 1, 2, pMap, 4, 3, pOutBuffer, 12);
 
+    for (int i = 0; i < 12; ++i) {
+        std::cout<<pOutBuffer[i]<<" ";
+    }
     return 0;
 }
 //1, 1, 1, 1,
