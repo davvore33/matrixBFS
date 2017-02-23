@@ -16,11 +16,17 @@ bool operator==(const coord& lhs, const coord& rhs)
     else
         return false;
 }
+
+void printCoord(coord lhs){
+    std::cout<<"x "<<lhs.x<<" ";
+    std::cout<<"y "<<lhs.y<<" "<<std::endl;
+}
+
 class graph{
 private:
     int **map;
     int **distances;
-    coord **source;
+    coord **sources;
     coord dim;
 public:
     graph(const int maxYpassed,const int maxXpassed, const unsigned char* pMap){
@@ -28,38 +34,50 @@ public:
         dim.y = maxYpassed;
         map = new int*[dim.y];
         distances = new int*[dim.y];
-        source = new coord*[dim.y];
+        sources = new coord*[dim.y];
         int index = 0;
         for(int y = 0; y < dim.y; y++) {
             map[y] = new int[dim.x];
             distances[y] = new int[dim.x];
-            source[y] = new coord[dim.x];
+            sources[y] = new coord[dim.x];
             for (int x = 0; x < dim.x; x++) {
                 map[y][x] = static_cast<int>(pMap[index]);
-                distances[y][x] = -1;
-                source[y][x] = coord{-1,-1};
+                distances[y][x] = std::numeric_limits<int>::max();
+                sources[y][x] = coord{-1,-1};
                 index++;
             }
         }
     }
 
-//    graph(coord c, const unsigned char* pMap){
-//        dim = c;
-//        map = new int*[dim.y];
-//        int index = 0;
-//        for(int y = 0; y < dim.y; y++) {
-//            map[y] = new int[dim.x];
-//            for (int x = 0; x < dim.x; x++) {
-//                map[y][x] = pMap[index];
-//                index++;
-//            }
-//        }
-//    }
-
     ~graph(){
-        for(int i =0 ; i < dim.y; i++)
+        for(int i =0 ; i < dim.y; i++) {
             delete[](map[i]);
+            delete[](distances[i]);
+            delete[](sources[i]);
+        }
         delete[](map);
+        delete[](distances);
+        delete[](sources);
+    }
+
+    int getDistance(coord c) const {
+        return distances[c.y][c.x];
+    }
+
+    void setDistance(coord c, int distance) {
+        graph::distances[c.y][c.x] = distance;
+    }
+
+    coord getSource(coord c) const {
+        return sources[c.y][c.x];
+    }
+
+    void setSource(coord c, coord source) {
+        graph::sources[c.y][c.x] = source;
+    }
+
+    int indexTransform(coord c){
+        return c.x+c.y*dim.y;
     }
 
     void findAdj(coord c, std::list<coord>* ret){
@@ -78,11 +96,6 @@ public:
     }
 };
 
-void printCoord(coord lhs){
-    std::cout<<"x "<<lhs.x<<" ";
-    std::cout<<"y "<<lhs.y<<" "<<std::endl;
-}
-
 int FindPath(const int nStartX, const int nStartY,
              const int nTargetX, const int nTargetY,
              const unsigned char* pMap, const int nMapWidth, const int nMapHeight,
@@ -90,6 +103,9 @@ int FindPath(const int nStartX, const int nStartY,
     coord start = coord{nStartX, nStartY};
     coord target = coord{nTargetX, nTargetY};
     graph* fico = new graph(nMapHeight, nMapWidth, pMap);
+    fico->setSource(start, start);
+    fico->setDistance(start, 0);
+
     std::list<coord> coda;                  //TODO: let coda be a set (no duplicates)
     coda.push_back(start);
 
@@ -102,11 +118,39 @@ int FindPath(const int nStartX, const int nStartY,
         } else{
             std::list<coord> adj;
             fico->findAdj(vertex, OUT &adj);
+            for (long i = adj.size(); i > 0 ; i--) {
+                coord nextVertex = adj.front();
+                adj.pop_front();
+                if(fico->getSource(nextVertex) == vertex){
+                    continue;
+                }
+                else if(fico->getDistance(nextVertex) > fico->getDistance(vertex)+1)
+                {
+                    fico->setDistance(nextVertex, fico->getDistance(vertex)+1);
+                    fico->setSource(nextVertex, vertex);
+                    adj.push_back(nextVertex);
+                }
+            }
             std::cout<<"i miei vicini sono ";
             std::for_each(adj.begin(), adj.end(), printCoord);
             std::cout<<std::endl;
             coda.splice(coda.end(), adj);
         }
+    }
+    coord support = target;
+    std::list<int> street;
+    while(true){
+        if(support == start) break;
+        street.push_back(fico->indexTransform(support));
+        support = fico->getSource(target);
+    }
+    if(street.size() > nOutBufferSize)
+        return -1;
+    int index = 0;
+    for (int j = street.size(); j > 0; j--) {
+        pOutBuffer[index] = street.back();
+        street.pop_back();
+        index++;
     }
 
 //    KNOW WHAT I HAVE
