@@ -1,4 +1,4 @@
-// Program to find Dijkstra's shortest path using STL set
+// Program to find shortest path using BFS Algorithm
 #include<iostream>
 #include <algorithm>
 #include <list>
@@ -20,15 +20,6 @@ bool operator==(const coord& lhs, const coord& rhs)
 std::ostream& operator << (std::ostream& stream, coord &p)
 {
     stream << p.x<<"/"<<p.y;
-    return stream;
-}
-
-std::ostream& operator << (std::ostream& stream, std::list<int> &p)
-{
-    for (int i = 0; i < p.size(); ++i) {
-        stream << p.front();
-        p.pop_front();
-    }
     return stream;
 }
 
@@ -70,6 +61,10 @@ public:
         delete[](sources);
     }
 
+    int getMap(coord c) const {
+        return map[c.y][c.x];
+    }
+
     int getDistance(coord c) const {
         return distances[c.y][c.x];
     }
@@ -91,18 +86,23 @@ public:
     }
 
     void findAdj(coord c, std::list<coord>* ret){
-        if(c.x+1 < dim.x)
-            if(map[c.y][c.x+1] == 1)
-                ret->push_back(coord{c.x+1, c.y});
-        if(c.x-1 >= 0)
-            if(map[c.y][c.x-1] == 1)
-                ret->push_back(coord{c.x+1, c.y});
-        if(c.y+1 < dim.y)
-            if(map[c.y+1][c.x] == 1)
-                ret->push_back(coord{c.x, c.y+1});
-        if(c.y-1 >= 0)
-            if(map[c.y-1][c.x] == 1)
-                ret->push_back(coord{c.x, c.y-1});
+        coord check;
+        if(c.x+1 < dim.x){
+            check = {c.x+1, c.y};
+            if(getMap(check) == 1)
+                ret->push_back(check);}
+        if(c.x-1 >= 0){
+            check = {c.x-1, c.y};
+            if(getMap(check) == 1)
+                ret->push_back(check);}
+        if(c.y+1 < dim.y){
+            check = {c.x, c.y+1};
+            if(getMap(check) == 1)
+                ret->push_back(check);}
+        if(c.y-1 >= 0){
+            check = {c.x, c.y-1};
+            if(getMap(check) == 1)
+                ret->push_back(check);}
     }
 };
 
@@ -116,12 +116,18 @@ int FindPath(const int nStartX, const int nStartY,
     fico->setSource(start, start);
     fico->setDistance(start, 0);
 
-    std::list<coord> coda;                  //TODO: let coda be a set (no duplicates)
-    coda.push_back(start);
+    std::list<coord> queue;                  //TODO: let queue be a set (no duplicates)
+    queue.push_back(start);
 
-    while(!coda.empty()){
-        coord vertex = coda.front();
-        coda.pop_front();
+//  Here I'm going to implement BFS algorithm:
+//    watching for each "queue" nodes,
+//    if watched node is the target, exit
+//    else, take adjacents, there, update adj distances
+//    and parents if needed (I'm looking for the sortest path
+
+    while(!queue.empty()){
+        coord vertex = queue.front();
+        queue.pop_front();
         if(vertex == target){
             break;
         } else{
@@ -140,54 +146,80 @@ int FindPath(const int nStartX, const int nStartY,
                     adj.push_back(nextVertex);
                 }
             }
-            coda.splice(coda.end(), adj);
+            queue.splice(queue.end(), adj);
         }
     }
-//    KNOW WHAT I HAVE
-//    for (int i = 0; i < nMapHeight; ++i) {
-//        for (int j = 0; j < nMapWidth; ++j) {
-//            coord ori = coord{j,i};
-//            coord source = fico->getSource(ori);
-//            std::cerr<<ori<<"{"<<source<<"}"<<fico->indexTransform(ori)<<"\t";
-//        }
-//        std::cerr<<std::endl;
-//    }
+//    KNOW WHAT I HAVE (print "origin{source}index")
+    for (int i = 0; i < nMapHeight; ++i) {
+        for (int j = 0; j < nMapWidth; ++j) {
+            coord ori = coord{j,i};
+            coord source = fico->getSource(ori);
+            if ( source == coord{-1,-1}){
+                std::cerr<<"0 ";
+            } else
+            if (source.x < ori.x){
+                std::cerr<<"← ";
+            } else
+            if (source.x > ori.x){
+                std::cerr<<"→ ";
+            } else
+            if (source.y < ori.y){
+                std::cerr<<"↓ ";
+            } else
+            if (source.y > ori.y){
+                std::cerr<<"↑ ";
+            }
+//            std::cerr<<fico->getMap(ori)<<"\t";
+        }
+        std::cerr<<"\n";
+    }
+
+//    if BFS doesn't enrich the solution
+    if(fico->getSource(target) == coord{-1,-1})
+        return -1;
+
+//    now I've climb my solution saved into my graph
     coord support = target;
     std::list<int> street;
     while(true){
-        street.push_back(fico->indexTransform(support));
         if(support == start) break;
+        street.push_back(fico->indexTransform(support));
         support = fico->getSource(support);
     }
-    if(street.size() > nOutBufferSize)
+    int solLenght = fico->getDistance(target);//static_cast<int>(street.size()); they store the same information
+
+//    if my street is longer that your buffer
+    if(solLenght > nOutBufferSize)
         return -1;
-    else {
-        long size = street.size();
-        for (int k = 0; k < (nOutBufferSize - size); ++k) {
-            street.push_front(0);
-        }
-    }
+
+//    the solution has to be reversed
     int index = 0;
     for (long j = street.size(); j > 0; j--) {
         pOutBuffer[index] = street.back();
         street.pop_back();
         index++;
     }
-    return 0;
-
-
+    return solLenght;
 }
 
 int main(){
-    unsigned char pMap[] = {1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1};
-    int pOutBuffer[12];
-    FindPath(0, 0, 1, 2, pMap, 4, 3, pOutBuffer, 12);
+    unsigned char pMap[] = {1, 1, 1, 1, 1, 1, 1, 1,
+                            0, 0, 0, 0, 0, 0, 0, 1,
+                            1, 1, 1, 1, 1, 1, 0, 1,
+                            1, 1, 0, 0, 1, 1, 0, 1,
+                            1, 0, 1, 1, 0, 1, 0, 1,
+                            1, 0, 1, 1, 0, 1, 0, 1,
+                            1, 0, 1, 0, 1, 1, 0, 1,
+                            1, 0, 1, 1, 1, 1, 0, 1,
+                            1, 1, 0, 0, 0, 0, 1, 1,
+                            1, 1, 1, 1, 1, 1, 1, 1,
+    };
+    const int buffdim = 200;
+    int pOutBuffer[buffdim];
+    int len = FindPath(0, 0, 3, 4, pMap, 8, 10, pOutBuffer, buffdim);
 
-    for (int i = 0; i < 12; ++i) {
+    for (int i = 0; i < 48; ++i) {
         std::cout<<pOutBuffer[i]<<" ";
     }
-    return 0;
+    return len;
 }
-//1, 1, 1, 1,
-// 0, 1, 0, 1,
-// 0, 1, 1, 1

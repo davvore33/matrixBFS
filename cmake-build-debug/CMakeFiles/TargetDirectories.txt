@@ -1,3 +1,3 @@
-/run/media/matteo/321AB9C01AB98201/Users/matteo/Documents/matrixBFS/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/run/media/matteo/321AB9C01AB98201/Users/matteo/Documents/matrixBFS/cmake-build-debug/CMakeFiles/edit_cache.dir
-/run/media/matteo/321AB9C01AB98201/Users/matteo/Documents/matrixBFS/cmake-build-debug/CMakeFiles/reso.dir
+/cygdrive/c/Users/matteo/Documents/matrixBFS/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/cygdrive/c/Users/matteo/Documents/matrixBFS/cmake-build-debug/CMakeFiles/edit_cache.dir
+/cygdrive/c/Users/matteo/Documents/matrixBFS/cmake-build-debug/CMakeFiles/reso.dir
