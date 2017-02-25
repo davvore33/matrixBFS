@@ -150,29 +150,28 @@ int FindPath(const int nStartX, const int nStartY,
         }
     }
 //    KNOW WHAT I HAVE (print "origin{source}index")
-    for (int i = 0; i < nMapHeight; ++i) {
-        for (int j = 0; j < nMapWidth; ++j) {
-            coord ori = coord{j,i};
-            coord source = fico->getSource(ori);
-            if ( source == coord{-1,-1}){
-                std::cerr<<"0 ";
-            } else
-            if (source.x < ori.x){
-                std::cerr<<"← ";
-            } else
-            if (source.x > ori.x){
-                std::cerr<<"→ ";
-            } else
-            if (source.y < ori.y){
-                std::cerr<<"↓ ";
-            } else
-            if (source.y > ori.y){
-                std::cerr<<"↑ ";
-            }
-//            std::cerr<<fico->getMap(ori)<<"\t";
-        }
-        std::cerr<<"\n";
-    }
+//    for (int i = 0; i < nMapHeight; ++i) {
+//        for (int j = 0; j < nMapWidth; ++j) {
+//            coord ori = coord{j,i};
+//            coord next = fico->getSource(ori);
+//            if ( next == coord{-1,-1}){
+//                std::cerr<<"0 ";
+//            } else
+//            if (next.x < ori.x){
+//                std::cerr<<"← ";
+//            } else
+//            if (next.x > ori.x){
+//                std::cerr<<"→ ";
+//            } else
+//            if (next.y < ori.y){
+//                std::cerr<<"↑ ";
+//            } else
+//            if (next.y > ori.y){
+//                std::cerr<<"↓ ";
+//            }
+//        }
+//        std::cerr<<"\n";
+//    }
 
 //    if BFS doesn't enrich the solution
     if(fico->getSource(target) == coord{-1,-1})
@@ -203,23 +202,14 @@ int FindPath(const int nStartX, const int nStartY,
 }
 
 int main(){
-    unsigned char pMap[] = {1, 1, 1, 1, 1, 1, 1, 1,
-                            0, 0, 0, 0, 0, 0, 0, 1,
-                            1, 1, 1, 1, 1, 1, 0, 1,
-                            1, 1, 0, 0, 1, 1, 0, 1,
-                            1, 0, 1, 1, 0, 1, 0, 1,
-                            1, 0, 1, 1, 0, 1, 0, 1,
-                            1, 0, 1, 0, 1, 1, 0, 1,
-                            1, 0, 1, 1, 1, 1, 0, 1,
-                            1, 1, 0, 0, 0, 0, 1, 1,
-                            1, 1, 1, 1, 1, 1, 1, 1,
-    };
-    const int buffdim = 200;
+    unsigned char pMap[] = {0, 0, 1, 0, 1, 1, 1, 0, 1};
+    const int buffdim = 7;
     int pOutBuffer[buffdim];
-    int len = FindPath(0, 0, 3, 4, pMap, 8, 10, pOutBuffer, buffdim);
-
-    for (int i = 0; i < 48; ++i) {
-        std::cout<<pOutBuffer[i]<<" ";
-    }
+    int len = FindPath(2, 0, 0, 2, pMap, 3, 3, pOutBuffer, 7);
+    if(len != -1)
+        for (int i = 0; i < 48; ++i) {
+            std::cout<<pOutBuffer[i]<<" ";
+        }
+    std::cout<<std::endl<<len<<std::endl;
     return len;
 }
