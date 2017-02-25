@@ -189,7 +189,7 @@ int FindPath(const int nStartX, const int nStartY,
 
 //    if my street is longer that your buffer
     if(solLenght > nOutBufferSize)
-        return -1;
+        return solLenght;
 
 //    the solution has to be reversed
     int index = 0;
@@ -210,6 +210,6 @@ int main(){
         for (int i = 0; i < 48; ++i) {
             std::cout<<pOutBuffer[i]<<" ";
         }
-    std::cout<<std::endl<<len<<std::endl;
+    std::cout<<std::endl;
     return len;
 }
